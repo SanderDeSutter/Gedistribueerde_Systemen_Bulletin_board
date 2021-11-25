@@ -11,7 +11,6 @@ public class ValueTagPair implements Serializable {
         this.value = value;
         this.tag = tag;
     }
-
     public Value getValue() {
         return value;
     }
@@ -20,5 +19,11 @@ public class ValueTagPair implements Serializable {
         return tag;
     }
 
-
+    @Override
+    public String toString() {
+        return "ValueTagPair{" +
+                "value=" + value +
+                ", tag='" + tag + '\'' +
+                '}';
+    }
 }

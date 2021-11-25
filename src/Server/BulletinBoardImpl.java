@@ -5,6 +5,7 @@ import Common.ValueTagPair;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class BulletinBoardImpl extends UnicastRemoteObject implements Common.BulletinBoard {
@@ -24,18 +25,23 @@ public class BulletinBoardImpl extends UnicastRemoteObject implements Common.Bul
 
     @Override
     public synchronized Value receive(int idx, String hashTag){
-        while (checkValue(idx, hashTag)==null) {
+        while (true) {
+            //System.out.println("while loop");
             try {
+                //System.out.println("waiting");
                 wait();
             } catch (InterruptedException e) {
                 System.out.println(e.toString());
                 System.out.println("fout gelopen eh ja hier");
             }
-            Value value = checkValue(idx,hashTag);
-            System.out.println(value);
-            return new Value(value.getMessage(),value.getNextTag(),value.getNextIdx());
+            //System.out.println("quit waiting");
+            Value value = checkValue(idx, hashTag);
+            if(value!=null) {
+                System.out.println(value);
+                notifyAll();
+                return new Value(value.getMessage(), value.getNextTag(), value.getNextIdx());
+            }
         }
-        return null;
     }
 
     //Checks if there is a new message at the given index.
@@ -49,8 +55,18 @@ public class BulletinBoardImpl extends UnicastRemoteObject implements Common.Bul
         return null;
 
     }
+    public void removeVTP(String tag, int idx){
+        //System.out.println("voor remove: "+cells[idx]);
+        for (int i = 0; i < cells[idx].size(); i++) {
+            ValueTagPair temp = cells[idx].get(i);
+            if (temp.getTag().equals(tag)) {
+               cells[idx].remove(i);
+            }
+        }
+        //System.out.println("na remove: "+cells[idx]);
+    }
 
-     /*
+    /*
 
     @Override
     public synchronized void sendMessage(String clientname , String message) throws RemoteException {

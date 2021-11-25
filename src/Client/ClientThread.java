@@ -23,14 +23,18 @@ public class ClientThread extends Thread {
 
     public void run() {
         Value value = new Value();
-        try {
-            value = bulletinBoard.receive(nextIdx,nextTag);
-            nextTag=value.getNextTag();
-            nextIdx=value.getNextIdx();
+        while(true) {
+            try {
+                value = bulletinBoard.receive(nextIdx, nextTag);
+                if(value!=null) {
+                    bulletinBoard.removeVTP(nextTag, nextIdx);
+                    nextTag = value.getNextTag();
+                    nextIdx = value.getNextIdx();
+                }
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            System.out.println("\u001B[33m" + value.getMessage()+"\033[0;97m");
         }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        System.out.println("\u001B[32m"+value.getMessage()+"\u001B[37m");
     }
 }

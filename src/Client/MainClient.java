@@ -14,6 +14,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.UUID;
+
 
 public class MainClient {
 
@@ -37,38 +39,47 @@ public class MainClient {
 
         //impl.sendMessage(5,new ValueTagPair(new Value(),"test"));
         //uncomment voor client1
-        new ClientThread(impl,1 ,"b" ).start();
+        //new ClientThread(impl,1 ,"b" ).start();
 
         //uncomment voor client2
-        //new ClientThread(impl,0,"a").start();
+        new ClientThread(impl,0,"a").start();
 
         boolean continueSending = true;
 
         while(continueSending){
-            System.out.println("Bericht te verzenden ");
-            String message = scanner.nextLine();
+            //System.out.println("Bericht te verzenden ");
+            //String message = scanner.nextLine();
 
+            BufferedReader stdIn =
+                    new BufferedReader(new InputStreamReader(System.in));
+            String message = stdIn.readLine();
             if(message.equals("exit")) continueSending = false;
             else {
                 //all nieuwe index en tag genereren en meegeven
                 String nextTag = randomString();
                 int nextIdx = randomInteger();
 
-                Value value = new Value(message, nextTag, nextIdx);
-                impl.sendMessage(currentIdx, new ValueTagPair(value, currentTag));
+                int tempCurrentIndex = currentIdx;
+                String tempCurrentTag = currentTag;
+
                 currentTag = nextTag;
                 currentIdx = nextIdx;
+
+                Value value = new Value(message, nextTag, nextIdx);
+                impl.sendMessage(tempCurrentIndex, new ValueTagPair(value, tempCurrentTag));
             }
         }
     }
 
     public static String randomString(){
-        byte[] array = new byte[7]; // length is bounded by 7
-        new Random().nextBytes(array);
-        //return new String(array, StandardCharsets.UTF_8);
+        String random = UUID.randomUUID().toString().replace("-","").substring(0,8);
+        return random;
+    }
+  /*
+    public static String randomString(){
         return "tag";
     }
-
+    */
     public static int randomInteger(){
         double randNumber = Math.random();
         double d = randNumber * 19;
