@@ -3,15 +3,15 @@ package Common;
 import java.io.*;
 
 public class ValueTagPair implements Serializable {
-    private Value value;
+    private byte[] value;
     private String tag;
 
 
-    public ValueTagPair(Value value, String tag) {
+    public ValueTagPair(byte[] value, String tag) {
         this.value = value;
         this.tag = tag;
     }
-    public Value getValue() {
+    public byte[] getValue() {
         return value;
     }
 

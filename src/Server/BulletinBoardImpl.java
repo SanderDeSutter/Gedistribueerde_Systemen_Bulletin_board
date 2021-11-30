@@ -29,16 +29,13 @@ public class BulletinBoardImpl extends UnicastRemoteObject implements Common.Bul
     public synchronized byte[] receive(int idx, int hashTag){
 
         while (true) {
-            //System.out.println("while loop");
             try {
-                //System.out.println("waiting");
                 wait();
             } catch (InterruptedException e) {
                 System.out.println(e.toString());
                 System.out.println("fout gelopen eh ja hier");
             }
-            //System.out.println("quit waiting");
-            Value value = checkValue(idx, hashTag);
+            byte[] value = checkValue(idx, hashTag);
             if(value!=null) {
                 System.out.println("SERVER: " + new String(value, StandardCharsets.UTF_8));
                 notifyAll();

@@ -7,7 +7,7 @@ public interface BulletinBoard extends Remote {
 
     void sendMessage(int idx, ValueTagPair valueTagPair) throws RemoteException;
 
-    Value receive(int idx, String hashTag) throws RemoteException;
+    byte[] receive(int idx, int hashTag) throws RemoteException;
 
     void removeVTP(String tag, int idx) throws RemoteException;
 }

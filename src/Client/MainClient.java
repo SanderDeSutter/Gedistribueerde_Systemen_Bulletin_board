@@ -3,6 +3,7 @@ package Client;
 import Common.BulletinBoard;
 import Common.Value;
 import Common.ValueTagPair;
+import Encryption.KDF;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
@@ -34,7 +35,27 @@ public class MainClient {
         currentIdx = Integer.parseInt(scanner.nextLine());
         System.out.println("Enter the starttag for sending: ");
         currentTag = scanner.nextLine();
+        KDF kdf = new KDF();
+        SecretKey sendingKey= new SecretKey(){
+            @Override
+            public String getAlgorithm() {
+                return null;
+            }
 
+            @Override
+            public String getFormat() {
+                return null;
+            }
+
+            @Override
+            public byte[] getEncoded() {
+                return new byte[0];
+            }
+        };
+        System.out.print("Geef key: ");
+        String key = scanner.nextLine();
+        sendingKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), 0, key.getBytes(StandardCharsets.UTF_8).length, "AES");
+        System.out.println(sendingKey);
 
         System.out.println("We maken verbinding met de server");
 

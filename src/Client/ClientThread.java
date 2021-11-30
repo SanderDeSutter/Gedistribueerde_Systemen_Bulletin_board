@@ -15,6 +15,8 @@ import java.security.NoSuchAlgorithmException;
 public class ClientThread extends Thread {
     private String nextTag;
     private int nextIdx;
+    private KDF kdf;
+    private SecretKey receivingKey;
 
 
     private BulletinBoard bulletinBoard;
@@ -23,6 +25,9 @@ public class ClientThread extends Thread {
         this.bulletinBoard = bulletinBoard;
         nextTag = startTag;
         nextIdx = startIdx;
+        this.kdf = new KDF();
+        this.receivingKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), 0, key.getBytes(StandardCharsets.UTF_8).length, "AES");
+        System.out.println("receiving key: "+ receivingKey);
     }
 
     public void run() {
