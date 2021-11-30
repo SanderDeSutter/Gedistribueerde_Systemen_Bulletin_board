@@ -4,8 +4,12 @@ import Common.Value;
 import Encryption.KDF;
 
 
-import javax.swing.*;
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 
 public class ClientThread extends Thread {
@@ -15,7 +19,7 @@ public class ClientThread extends Thread {
 
     private BulletinBoard bulletinBoard;
 
-    public ClientThread(BulletinBoard bulletinBoard, int startIdx, String startTag) {
+    public ClientThread(BulletinBoard bulletinBoard, int startIdx, String startTag,String key) {
         this.bulletinBoard = bulletinBoard;
         nextTag = startTag;
         nextIdx = startIdx;

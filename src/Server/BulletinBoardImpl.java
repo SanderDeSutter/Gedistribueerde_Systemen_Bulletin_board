@@ -26,7 +26,8 @@ public class BulletinBoardImpl extends UnicastRemoteObject implements Common.Bul
     }
 
     @Override
-    public synchronized Value receive(int idx, String hashTag){
+    public synchronized byte[] receive(int idx, int hashTag){
+
         while (true) {
             //System.out.println("while loop");
             try {
@@ -41,16 +42,17 @@ public class BulletinBoardImpl extends UnicastRemoteObject implements Common.Bul
             if(value!=null) {
                 System.out.println("SERVER: " + new String(value, StandardCharsets.UTF_8));
                 notifyAll();
-                return new Value(value.getMessage(), value.getNextTag(), value.getNextIdx());
+                return value;
             }
         }
     }
 
     //Checks if there is a new message at the given index.
-    Value checkValue(int idx, String hashTag) {
+    byte[] checkValue(int idx, int hashTag) {
         for (int i = 0; i < cells[idx].size(); i++) {
             ValueTagPair temp = cells[idx].get(i);
-            if (temp.getTag().equals(hashTag)) {
+            if (temp.getTag().hashCode()==hashTag) {
+                System.out.println("hash2: "+temp.getTag().hashCode());
                 return temp.getValue();
             }
         }
