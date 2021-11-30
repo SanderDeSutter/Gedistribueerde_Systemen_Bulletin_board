@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 
 public interface BulletinBoard extends Remote {
 
-    void sendMessage(int idx, ValueTagPair valuetagpair) throws RemoteException;
+    void sendMessage(int idx, ValueTagPair valueTagPair) throws RemoteException;
 
     Value receive(int idx, String hashTag) throws RemoteException;
 

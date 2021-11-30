@@ -4,6 +4,8 @@ import Common.BulletinBoard;
 import Common.Value;
 import Common.ValueTagPair;
 
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,14 +14,19 @@ import java.nio.charset.StandardCharsets;
 import java.rmi.NotBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.UUID;
 
 
+
 public class MainClient {
 
-    public static void main(String[] args) throws IOException, NotBoundException {
+    public static void main(String[] args) throws IOException, NotBoundException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         Scanner scanner = new Scanner(System.in);
         int currentIdx;
         String currentTag;
@@ -39,12 +46,13 @@ public class MainClient {
 
         //impl.sendMessage(5,new ValueTagPair(new Value(),"test"));
         //uncomment voor client1
-        //new ClientThread(impl,1 ,"b" ).start();
+        new ClientThread(impl,1 ,"b", "poepsnoeppoepsno" ).start();
 
         //uncomment voor client2
-        new ClientThread(impl,0,"a").start();
+        //new ClientThread(impl,0,"a","appelappelappela").start();
 
         boolean continueSending = true;
+        Cipher cipher = Cipher.getInstance("AES");
 
         while(continueSending){
             //System.out.println("Bericht te verzenden ");
@@ -66,7 +74,23 @@ public class MainClient {
                 currentIdx = nextIdx;
 
                 Value value = new Value(message, nextTag, nextIdx);
-                impl.sendMessage(tempCurrentIndex, new ValueTagPair(value, tempCurrentTag));
+                byte[] valueToBytes = value.toByteArray();
+                byte[] tempValueToBytes = new byte[8];
+                System.arraycopy(valueToBytes,0,tempValueToBytes, 0, 8);
+
+                System.out.println(sendingKey);
+                cipher.init(Cipher.ENCRYPT_MODE, sendingKey);
+                System.out.println(valueToBytes.length);
+                byte[] encryptedValueToBytes = cipher.doFinal(valueToBytes);
+                //TODO encrpt valueToBytes
+
+                impl.sendMessage(tempCurrentIndex, new ValueTagPair(encryptedValueToBytes , tempCurrentTag));
+
+                //Generating a new key
+                byte[] keyToByteArray = sendingKey.getEncoded();
+                byte[] newKey = kdf.hkdfExpand(keyToByteArray,tempValueToBytes,128);
+                sendingKey = new SecretKeySpec(newKey, 0, 16, "AES");
+
             }
         }
     }
@@ -85,6 +109,8 @@ public class MainClient {
         double d = randNumber * 19;
         return (int)d;
     }
+
+
 
 
 }

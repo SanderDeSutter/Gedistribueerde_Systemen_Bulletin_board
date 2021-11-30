@@ -8,5 +8,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="JColor-5.0.0" level="project" />
+    <orderEntry type="library" name="MigLayout" level="project" />
+    <orderEntry type="library" name="bcprov-ext-jdk15on-170" level="project" />
   </component>
 </module>

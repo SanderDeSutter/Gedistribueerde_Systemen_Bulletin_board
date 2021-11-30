@@ -1,7 +1,7 @@
 package Client;
 import Common.BulletinBoard;
 import Common.Value;
-import Common.ValueTagPair;
+import Encryption.KDF;
 
 
 import javax.swing.*;
@@ -22,19 +22,39 @@ public class ClientThread extends Thread {
     }
 
     public void run() {
-        Value value = new Value();
-        while(true) {
-            try {
-                value = bulletinBoard.receive(nextIdx, nextTag);
-                if(value!=null) {
-                    bulletinBoard.removeVTP(nextTag, nextIdx);
-                    nextTag = value.getNextTag();
-                    nextIdx = value.getNextIdx();
+        byte[] value;
+        Value objectValue = new Value();
+        try {
+            Cipher cipher = Cipher.getInstance("AES");
+
+            while (true) {
+                try {
+                    int hashNextTag = nextTag.hashCode();
+                    System.out.println("hash: " + hashNextTag);
+                    value = bulletinBoard.receive(nextIdx, hashNextTag);
+                    if (value != null) {
+                        bulletinBoard.removeVTP(nextTag, nextIdx);
+                        //Value decrypteren
+                        cipher.init(Cipher.DECRYPT_MODE, receivingKey);
+                        byte[] valueDecrypted = cipher.doFinal(value);
+                        byte[] keyToByteArray = receivingKey.getEncoded();
+                        byte[] tempValueDecrypted = new byte[8];
+                        System.arraycopy(valueDecrypted,0,tempValueDecrypted, 0, 8);
+                        
+                        byte[] newKey = kdf.hkdfExpand(keyToByteArray,tempValueDecrypted, 128);
+                        receivingKey = new SecretKeySpec(newKey, 0, 16, "AES");
+                        objectValue = Value.fromByteArray(valueDecrypted);
+                        System.out.println(objectValue.getMessage());
+                        nextTag = objectValue.getNextTag();
+                        nextIdx = objectValue.getNextIdx();
+                    }
+                } catch (RemoteException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                    e.printStackTrace();
                 }
-            } catch (RemoteException e) {
-                e.printStackTrace();
+                //System.out.println("\u001B[33m" + objectValue.getMessage() + "\033[0;97m");
             }
-            System.out.println("\u001B[33m" + value.getMessage()+"\033[0;97m");
-        }
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+        e.printStackTrace();
+    }
     }
 }

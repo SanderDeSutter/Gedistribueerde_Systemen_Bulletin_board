@@ -2,7 +2,9 @@ package Server;
 
 import Common.Value;
 import Common.ValueTagPair;
+import Encryption.KDF;
 
+import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Arrays;
@@ -37,7 +39,7 @@ public class BulletinBoardImpl extends UnicastRemoteObject implements Common.Bul
             //System.out.println("quit waiting");
             Value value = checkValue(idx, hashTag);
             if(value!=null) {
-                System.out.println(value);
+                System.out.println("SERVER: " + new String(value, StandardCharsets.UTF_8));
                 notifyAll();
                 return new Value(value.getMessage(), value.getNextTag(), value.getNextIdx());
             }
@@ -53,7 +55,6 @@ public class BulletinBoardImpl extends UnicastRemoteObject implements Common.Bul
             }
         }
         return null;
-
     }
     public void removeVTP(String tag, int idx){
         //System.out.println("voor remove: "+cells[idx]);
