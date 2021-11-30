@@ -2,8 +2,16 @@
   <library name="bcprov-ext-jdk15on-170">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/bcprov-ext-jdk15on-170.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/miglayout-core.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/miglayout-swing.jar!/" />
     </CLASSES>
-    <JAVADOC />
-    <SOURCES />
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib/miglayout-core-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/miglayout-swing-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/miglayout-core-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/miglayout-swing-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>
