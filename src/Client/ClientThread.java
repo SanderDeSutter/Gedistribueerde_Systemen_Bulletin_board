@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedList;
+import java.util.List;
 
 
 public class ClientThread extends Thread {
@@ -19,6 +21,11 @@ public class ClientThread extends Thread {
     private int nextIdx;
     private KDF kdf;
     private SecretKey receivingKey;
+    private LinkedList<String> messages;
+
+
+
+
 
 
     private BulletinBoard bulletinBoard;
@@ -30,6 +37,7 @@ public class ClientThread extends Thread {
         this.kdf = new KDF();
         this.receivingKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), 0, key.getBytes(StandardCharsets.UTF_8).length, "AES");
         System.out.println("receiving key: "+ receivingKey);
+        messages = new LinkedList<>();
     }
 
     public void run() {
@@ -56,6 +64,7 @@ public class ClientThread extends Thread {
                         receivingKey = new SecretKeySpec(newKey, 0, 16, "AES");
                         objectValue = Value.fromByteArray(valueDecrypted);
                         System.out.println(objectValue.getMessage());
+                        messages.add(objectValue.getMessage());
                         nextTag = objectValue.getNextTag();
                         nextIdx = objectValue.getNextIdx();
                     }
@@ -68,4 +77,13 @@ public class ClientThread extends Thread {
         e.printStackTrace();
     }
     }
+
+    public List<String> getNewMessages() {
+        List<String> messagesToReturn = new LinkedList<>(messages);
+        messages.clear();
+        return messagesToReturn;
+
+    }
+
+
 }
