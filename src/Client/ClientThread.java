@@ -6,6 +6,8 @@ import Encryption.KDF;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
+import javax.swing.*;
+
 import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.security.InvalidKeyException;
