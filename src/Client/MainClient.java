@@ -10,6 +10,11 @@ import javafx.scene.layout.Pane;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -61,7 +66,7 @@ public class MainClient {
     };
 
 
-    JTextArea messageArea = new JTextArea(16, 50);
+    JPanel messageArea = new JPanel();
     //JTextArea onlineClients = new JTextArea(40, 16);
 
 
@@ -123,7 +128,13 @@ public class MainClient {
             public void actionPerformed(ActionEvent e) {
                 List<String> messages = thread.getNewMessages();
                 for (String string : messages) {
-                    messageArea.append("<html>Text color: <font color='green'>" + string + "</font></html>"  + "\n");
+                    EmptyBorder eb = new EmptyBorder(new Insets(10, 10, 10, 10));
+
+                    JTextPane tPane = new JTextPane();
+                    tPane.setBorder(eb);
+
+                    messageArea.add(tPane);
+                    appendToPane(tPane, string, Color.RED);
                 }
             }
         });
@@ -131,7 +142,13 @@ public class MainClient {
         bSend.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String message = textField.getText();
-                messageArea.append(  "<html>Text color: <font color='red'>" + message+ "</font></html>"  + "\n");
+                EmptyBorder eb = new EmptyBorder(new Insets(10, 10, 10, 10));
+
+                JTextPane tPane = new JTextPane();
+                tPane.setBorder(eb);
+
+                messageArea.add(tPane);
+                appendToPane(tPane, message, Color.CYAN);
                 //all nieuwe index en tag genereren en meegeven
                 String nextTag = randomString();
                 int nextIdx = randomInteger();
@@ -222,6 +239,19 @@ public class MainClient {
         double randNumber = Math.random();
         double d = randNumber * 19;
         return (int)d;
+    }
+
+    public void appendToPane(JTextPane tp, String msg, Color c) {
+        StyleContext sc = StyleContext.getDefaultStyleContext();
+        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
+
+        aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Lucida Console");
+        aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
+
+        int len = tp.getDocument().getLength();
+        tp.setCaretPosition(len);
+        tp.setCharacterAttributes(aset, false);
+        tp.replaceSelection(msg);
     }
 }
 
