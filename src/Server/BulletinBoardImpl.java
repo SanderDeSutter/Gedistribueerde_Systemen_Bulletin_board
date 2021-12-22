@@ -46,7 +46,7 @@ public class BulletinBoardImpl extends UnicastRemoteObject implements Common.Bul
         for (int i = 0; i < cells[idx].size(); i++) {
             ValueTagPair temp = cells[idx].get(i);
             if (temp.getTag().hashCode()==hashTag) {
-                System.out.println("hash2: "+temp.getTag().hashCode());
+                //System.out.println("hash2: "+temp.getTag().hashCode());
                 return temp.getValue();
             }
         }

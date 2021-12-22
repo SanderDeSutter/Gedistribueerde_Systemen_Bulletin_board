@@ -4,8 +4,7 @@ import Common.BulletinBoard;
 import Common.Value;
 import Common.ValueTagPair;
 import Encryption.KDF;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.Pane;
+
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
@@ -65,14 +64,14 @@ public class MainClient {
         }
     };
 
-
     JPanel messageArea = new JPanel();
     //JTextArea onlineClients = new JTextArea(40, 16);
 
 
-    public MainClient() throws RemoteException, NotBoundException, NoSuchPaddingException, NoSuchAlgorithmException {
+    public MainClient(String ipaddr) throws RemoteException, NotBoundException, NoSuchPaddingException, NoSuchAlgorithmException {
         this.frame=new JFrame();
         Panel textAndSendPanel = new Panel();
+        messageArea.setLayout(new BoxLayout(messageArea, BoxLayout.Y_AXIS));
 
         //Make textfield
         textField.setEditable(true);
@@ -97,8 +96,16 @@ public class MainClient {
 
         //Add everything to the frame
         frame.getContentPane().add(textAndSendPanel, BorderLayout.SOUTH);
-        frame.getContentPane().add(new JScrollPane(messageArea), BorderLayout.CENTER);
-        this.setInitialValues();
+        JScrollPane scrollPane = new JScrollPane(messageArea);
+        scrollPane.setPreferredSize(new Dimension(640,480));
+        frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
+        this.setInitialValuesSending();
+        System.out.print("Enter the startindex for receiving: ");
+        int recIdx = Integer.parseInt(scanner.nextLine());
+        System.out.println("Enter the starttag for receiving: ");
+        String recTag = scanner.nextLine();
+        System.out.print("Enter first key for receiving: ");
+        String recKey = scanner.nextLine();
 
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.frame.setVisible(true);
@@ -107,17 +114,12 @@ public class MainClient {
         System.out.println("We maken verbinding met de server");
 
         // fire to localhost port 1099
-        Registry myRegistry = LocateRegistry.getRegistry("localhost", 1099);
+        Registry myRegistry = LocateRegistry.getRegistry(ipaddr, 1099);
 
         // search for CounterService
         BulletinBoard impl = (BulletinBoard) myRegistry.lookup("BulletinBoardService");
 
-        //impl.sendMessage(5,new ValueTagPair(new Value(),"test"));
-        //uncomment voor client1
-        //ClientThread thread = new ClientThread(impl,1 ,"b", "poepsnoeppoepsno" );
-
-        //uncomment voor client2
-        ClientThread thread = new ClientThread(impl,0,"a","appelappelappela");
+        ClientThread thread = new ClientThread(impl,recIdx,recTag,recKey);
         thread.start();
 
         boolean continueSending = true;
@@ -128,13 +130,18 @@ public class MainClient {
             public void actionPerformed(ActionEvent e) {
                 List<String> messages = thread.getNewMessages();
                 for (String string : messages) {
+                    Box box = Box.createHorizontalBox();
+                    //box.setSize(640,480);
                     EmptyBorder eb = new EmptyBorder(new Insets(10, 10, 10, 10));
-
                     JTextPane tPane = new JTextPane();
+                    tPane.setMaximumSize(new Dimension(150,30));
                     tPane.setBorder(eb);
-
-                    messageArea.add(tPane);
+                    //tPane.setAlignmentX(Component.RIGHT_ALIGNMENT);
                     appendToPane(tPane, string, Color.RED);
+                    box.add(tPane);
+                    box.add(Box.createHorizontalGlue());
+                    messageArea.add(box);
+                    tPane.setEditable(false);
                 }
             }
         });
@@ -142,13 +149,19 @@ public class MainClient {
         bSend.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String message = textField.getText();
+                Box box = Box.createHorizontalBox();
+                //box.setSize(640,480);
+                box.add(Box.createHorizontalGlue());
                 EmptyBorder eb = new EmptyBorder(new Insets(10, 10, 10, 10));
-
                 JTextPane tPane = new JTextPane();
                 tPane.setBorder(eb);
+                tPane.setMaximumSize(new Dimension(150,30));
+                //tPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+                appendToPane(tPane, message, Color.orange);
+                box.add(tPane);
+                messageArea.add(box);
+                tPane.setEditable(false);
 
-                messageArea.add(tPane);
-                appendToPane(tPane, message, Color.CYAN);
                 //all nieuwe index en tag genereren en meegeven
                 String nextTag = randomString();
                 int nextIdx = randomInteger();
@@ -164,7 +177,7 @@ public class MainClient {
                 byte[] tempValueToBytes = new byte[8];
                 System.arraycopy(valueToBytes, 0, tempValueToBytes, 0, 8);
 
-                System.out.println(sendingKey);
+                //System.out.println(sendingKey);
                 try {
                     cipher.init(Cipher.ENCRYPT_MODE, sendingKey);
                 } catch (InvalidKeyException invalidKeyException) {
@@ -197,7 +210,7 @@ public class MainClient {
 
     }
 
-    public void setInitialValues(){
+    public void setInitialValuesSending(){
         System.out.print("Enter the startindex for sending: ");
         currentIdx = Integer.parseInt(scanner.nextLine());
         System.out.println("Enter the starttag for sending: ");
@@ -218,15 +231,15 @@ public class MainClient {
                 return new byte[0];
             }
         };
-        System.out.print("Geef key: ");
+        System.out.print("Enter first key for sending: ");
         String key = scanner.nextLine();
         sendingKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), 0, key.getBytes(StandardCharsets.UTF_8).length, "AES");
-        System.out.println("Sending key: "+sendingKey);
+        //System.out.println("Sending key: "+sendingKey);
     }
 
     public static void main(String[] args) throws IOException, NotBoundException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         //init frame
-        MainClient client = new MainClient();
+        MainClient client = new MainClient(args[0]);
 
     }
 
@@ -246,12 +259,15 @@ public class MainClient {
         AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
 
         aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Lucida Console");
-        aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
+        aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_CENTER);
 
         int len = tp.getDocument().getLength();
         tp.setCaretPosition(len);
         tp.setCharacterAttributes(aset, false);
         tp.replaceSelection(msg);
+        messageArea.revalidate();
+        messageArea.repaint();
     }
+
 }
 

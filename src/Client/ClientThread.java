@@ -6,7 +6,6 @@ import Encryption.KDF;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
-import javax.swing.*;
 
 import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
@@ -36,7 +35,7 @@ public class ClientThread extends Thread {
         nextIdx = startIdx;
         this.kdf = new KDF();
         this.receivingKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), 0, key.getBytes(StandardCharsets.UTF_8).length, "AES");
-        System.out.println("receiving key: "+ receivingKey);
+        //System.out.println("receiving key: "+ receivingKey);
         messages = new LinkedList<>();
     }
 
@@ -49,7 +48,7 @@ public class ClientThread extends Thread {
             while (true) {
                 try {
                     int hashNextTag = nextTag.hashCode();
-                    System.out.println("hash: " + hashNextTag);
+                    //System.out.println("hash: " + hashNextTag);
                     value = bulletinBoard.receive(nextIdx, hashNextTag);
                     if (value != null) {
                         bulletinBoard.removeVTP(nextTag, nextIdx);
