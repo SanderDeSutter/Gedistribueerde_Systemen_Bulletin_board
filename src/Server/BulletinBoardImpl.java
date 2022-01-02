@@ -11,6 +11,7 @@ public class BulletinBoardImpl extends UnicastRemoteObject implements Common.Bul
     private LinkedList<ValueTagPair>[] cells;
 
     public BulletinBoardImpl() throws RemoteException{
+
         this.cells = new LinkedList[20];
         for (int i = 0; i<cells.length;i++) {
             this.cells[i] = new LinkedList();

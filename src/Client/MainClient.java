@@ -20,7 +20,9 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
+import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -37,6 +39,7 @@ import java.util.List;
 public class MainClient {
 
     //Import GUI needs
+    static Registry myRegistry;
     String name;
     JFrame frame = new JFrame("Chatter");
     JTextField textField = new JTextField(50);
@@ -68,7 +71,8 @@ public class MainClient {
     //JTextArea onlineClients = new JTextArea(40, 16);
 
 
-    public MainClient(String ipaddr) throws RemoteException, NotBoundException, NoSuchPaddingException, NoSuchAlgorithmException {
+    public MainClient(String ipaddr) throws RemoteException, NotBoundException, NoSuchPaddingException, NoSuchAlgorithmException, MalformedURLException {
+
         this.frame=new JFrame();
         Panel textAndSendPanel = new Panel();
         messageArea.setLayout(new BoxLayout(messageArea, BoxLayout.Y_AXIS));
@@ -114,10 +118,9 @@ public class MainClient {
         System.out.println("We maken verbinding met de server");
 
         // fire to localhost port 1099
-        Registry myRegistry = LocateRegistry.getRegistry(ipaddr, 1099);
 
         // search for CounterService
-        BulletinBoard impl = (BulletinBoard) myRegistry.lookup("BulletinBoardService");
+        BulletinBoard impl = (BulletinBoard) Naming.lookup("//" + ipaddr + ":1099/BulletinBoardImpl");
 
         ClientThread thread = new ClientThread(impl,recIdx,recTag,recKey);
         thread.start();
